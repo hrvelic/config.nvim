@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -122,7 +122,7 @@ do
   --  Schedule the setting after `UiEnter` because it can increase startup-time.
   --  Remove this option if you want your OS clipboard to remain independent.
   --  See `:help 'clipboard'`
-  vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
+  -- vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 
   -- Enable break indent
   vim.o.breakindent = true
@@ -138,7 +138,7 @@ do
   vim.o.signcolumn = 'yes'
 
   -- Decrease update time
-  vim.o.updatetime = 250
+  vim.o.updatetime = 50 -- 250
 
   -- Decrease mapped sequence wait time
   vim.o.timeoutlen = 300
@@ -165,12 +165,91 @@ do
   vim.o.cursorline = true
 
   -- Minimal number of screen lines to keep above and below the cursor.
-  vim.o.scrolloff = 10
+  vim.o.scrolloff = 8 -- 10
 
   -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
   -- instead raise a dialog asking if you wish to save the current file(s)
   -- See `:help 'confirm'`
   vim.o.confirm = true
+
+  --============================================================
+  -- Personal settings
+
+  --------------------------------------------------------------
+  -- Files and system
+  vim.o.encoding = 'utf-8' -- use unicode
+  vim.o.swapfile = false -- don't create temp files
+  vim.o.backup = false -- don't create backup files
+  vim.o.writebackup = true -- when saving write to a new file and then rename to replace original
+  vim.o.undodir = os.getenv('HOME') .. '/.cache/vim-undodir'
+  -- TODO set nocompatible " relax file compatibility restrictions
+  ----- User interface
+  vim.o.hidden = true -- open new buffer without replacing current one
+  vim.o.visualbell = true -- no more annoying dings
+  vim.o.termguicolors = true -- set term gui colors
+  vim.o.background = 'dark' -- colorschemes that can be light or dark will be made dark
+  vim.o.title = true -- Allows neovom to send the Terminal details of the current window, instead of just getting 'v'
+  vim.o.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20'
+  ----- Gutters ---------------
+  vim.o.numberwidth = 4 -- make line numbers gutter a set width
+  ----- Editor ---------------
+  vim.o.sidescrolloff = 8 -- number of columns from cursor to edge before view starts scrolling
+  vim.o.colorcolumn = '120' -- right margin marker
+  vim.o.foldenable = true
+  vim.o.foldmethod = 'manual'
+  -- vim.opt.completeopt = { 'menu', 'menuone', 'noselect' } -- Completion options
+  ----- Command line ---------------
+  -- vim.opt.laststatus = 3 -- Use a single global status line for currently edited file instead of one for each view
+  vim.o.cmdheight = 0 -- 2 -- More space for messages and commands
+  vim.o.shortmess = vim.o.shortmess .. 'S' -- stops display of currentsearch match in cmdline area
+  -- Search, http://vim.wikia.com/wiki/Searching ---------------
+  vim.opt.incsearch = true -- start searching immediately when you start typing in the search box
+  vim.opt.hlsearch = false -- don't highlight search matches
+
+  --------------------------------------------------------------
+  -- Editor
+  ----- Formatting ---------------
+  vim.opt.wrap = false -- no wraping text exceeding right window edge
+  vim.opt.expandtab = true -- Tab to spaces, to output actual tab character, CTRL-v-TAB
+  vim.opt.tabstop = 2 -- Tab key enters 2 spaces.
+  vim.opt.shiftwidth = 2 -- 2 spaces for indent width
+  vim.opt.softtabstop = 2
+  vim.opt.smartindent = true
+  vim.opt.autoindent = true -- copy indent from current line when starting new one
+  vim.opt.cpoptions:append('>') -- when you yank multiple times into a register, this puts each on a new line
+  vim.opt.nrformats:append('alpha') -- this means you can increment lists that have letters with `g ctrl-a`
+  ----- Editing ---------------
+  vim.o.joinspaces = false -- no double spaces with join
+  vim.o.showmatch = true -- highlight matching parens, braces, brackets, etc.
+  vim.opt.backspace = { 'indent', 'eol', 'start' } -- allow backspace on indent, end of line or insert mode start position
+  -- Give me some fenced codeblock goodness
+  -- vim.g.markdown_fenced_languages = {
+  --   -- text and configuration
+  --   'json', 'jsonc', 'yaml', 'toml', 'dockerfile', 'xml', 
+  --   -- shell
+  --   'bash',
+  --   -- vim
+  --   'lua', 'vim',
+  --   -- system programming
+  --   'zig',
+  --   -- application programming
+  --   'swift', 'elixir', 
+  --   -- web programming
+  --   'html', 'css', 'javascript', 'typescript', 'svelte'
+  -- }
+
+  --------------------------------------------------------------
+  -- Neovide settings ---------------
+  if vim.g.neovide then
+    vim.opt.guifont = 'MesloLGL Nerd Font Mono:h17'
+    -- vim.g.neovide_cursor_hack = true
+    -- vim.g.neovide_cursor_smooth_blink = false
+    vim.g.neovide_scroll_animation_length = 0.1
+    vim.g.neovide_cursor_animation_length = 0.1
+    -- vim.g.neovide_cursor_vfx_mode = 'railgun'
+    vim.g.neovide_cursor_animate_in_insert_mode = false
+  end
+
 end
 
 -- ============================================================
@@ -240,6 +319,50 @@ do
   -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
   -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+  --============================================================
+  -- Personal keymaps
+  ----- Buffers ---------------
+  vim.keymap.set('n', '<leader>[', '<cmd>bprevious<cr>', { desc = 'Go to previous buffer' })
+  vim.keymap.set('n', '<leader>]', '<cmd>bnext<cr>', { desc = 'Go to next buffer' })
+  vim.keymap.set('n', '<Leader>bn', '<cmd>enew<CR>', { desc = 'New file' })
+  vim.keymap.set('n', '<leader>bw', '<cmd>w<cr>', { desc = 'Write buffer to file' })
+  vim.keymap.set('n', '<leader>bR', '<cmd>edit!<cr>', { desc = 'Reload buffer from file' })
+  vim.keymap.set('n', '<leader>bd', '<cmd>bd<cr>', { desc = 'Close current buffer' })
+  vim.keymap.set('n', '<leader>bD', '<cmd>bd!<cr>', { desc = 'Discard changes and close current buffer' })
+  ----- Session ---------------
+  vim.keymap.set('n', '<leader>fss', '<cmd>SessionSave<cr>', { desc = 'Save session' })
+  vim.keymap.set('n', '<leader>fsr', '<cmd>SessionRestore<cr>', { desc = 'Restore session' })
+  vim.keymap.set('n', '<leader>fsa', '<cmd>SessionToggleAutoSave<cr>', { desc = 'Toggle session auto-save' })
+  ----- Windows ---------------
+  vim.keymap.set('n', '<leader>1', '1<C-W>w', { desc = 'Go to window 1' })
+  vim.keymap.set('n', '<leader>2', '2<C-W>w', { desc = 'Go to window 2' })
+  vim.keymap.set('n', '<leader>3', '3<C-W>w', { desc = 'Go to window 3' })
+  vim.keymap.set('n', '<leader>4', '4<C-W>w', { desc = 'Go to window 4' })
+  vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<cr>', { desc = 'New split to the right' })
+  vim.keymap.set('n', '<leader>ws', '<cmd>new<cr>', { desc = 'New split below' })
+  vim.keymap.set('n', '<leader>wq', '<cmd>quit<cr>', { desc = 'Close window' })
+  vim.keymap.set('n', '<leader>wQ', '<cmd>quit!<cr>', { desc = 'Discard changes and close window' })
+  vim.keymap.set('n', '<leader>wh', '<cmd>close!<cr>', { desc = 'Close window and hide buffer' })
+  vim.keymap.set('n', '<leader>wr', '<C-W>R', { silent = true, desc = 'Resize window' })
+  vim.keymap.set('n', '<leader>w=', '<C-W>=', { silent = true, desc = 'Equalize window' })
+  vim.keymap.set('n', '<leader>wt', '<c-w>T', { silent = true, desc = 'File to new tab' })
+  -- ─[ Leader v - selection ]──────────────────────────────────────
+  vim.keymap.set('n', '<leader>va', 'ggVG', { desc = 'Select all' })
+  ----- Registers and system clipboard ---------------
+  vim.keymap.set('n', '<leader>y', '"+yy', { desc = 'Copy line to system clipboard' })
+  vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Copy selection to system clipboard' })
+  vim.keymap.set('n', '<leader>P', '"+P', { desc = 'Paste before cursor from system clipboard' })
+  vim.keymap.set('n', '<leader>p', '"+p', { desc = 'Paste after cursor from system clipboard' })
+  ----- Editor ---------------
+  vim.keymap.set('n', '<leader>,q', '<cmd>qa<cr>', { desc = 'Exit neovim' })
+  vim.keymap.set('n', '<leader>,Q', '<cmd>qa!<cr>', { desc = 'Discard changes and exit neovim' })
+  vim.keymap.set('n', '<leader>,c', '<cmd>enew|e $MYVIMRC<cr>', { desc = 'Edit neovim config' })
+  -- vim.keymap.set('n', '<leader>,R', '<cmd>source $MYVIMRC<cr>', { desc = 'Reload neovim config' })
+  vim.keymap.set('n', '<leader>,n', '<cmd>enew|e $HOME/.config/neovide/config.toml<cr>', { desc = 'Edit neovide config' })
+  vim.keymap.set('n', '<leader>,t', '<cmd>enew|e $HOME/Library/Application Support/com.mitchellh.ghostty/config<cr>', {
+    desc = 'Edit terminal (Ghostty) config'
+  })
+
   -- [[ Basic Autocommands ]]
   --  See `:help lua-guide-autocommands`
 
@@ -251,6 +374,25 @@ do
     group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
     callback = function() vim.hl.on_yank() end,
   })
+
+  --============================================================
+  -- Personal automcommands
+  -- dont list quickfix buffers
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'qf',
+    callback = function()
+      vim.opt_local.buflisted = false
+    end,
+  })
+
+  -- auto-reload files when modified externally
+  -- https://unix.stackexchange.com/a/383044
+  vim.opt.autoread = true
+  vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'CursorHoldI', 'FocusGained' }, {
+    command = 'if mode() != "c" | checktime | endif',
+    pattern = { '*' },
+  })
+
 end
 
 -- ============================================================
@@ -410,6 +552,14 @@ do
     icons = { mappings = vim.g.have_nerd_font },
     -- Document existing key chains
     spec = {
+      { '<leader>f', group = '[F]iles...' },
+      { '<leader>fs', group = '[S]ession...' },
+      { '<leader>w', group = '[W]indows...' },
+      { '<leader>b', group = '[B]uffers...' },
+      { '<leader>v', group = 'Selection...' },
+      { '<leader>/', group = 'Find text...' },
+      { '<leader>,', group = 'Editor...' },
+      { '<leader>?', group = 'Help...' },
       { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
@@ -423,18 +573,14 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
+  vim.pack.add { gh 'ellisonleao/gruvbox.nvim' }
   ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
-    },
-  }
+  require('gruvbox').setup()
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'gruvbox'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -552,17 +698,19 @@ do
 
   -- See `:help telescope.builtin`
   local builtin = require 'telescope.builtin'
-  vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-  vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-  vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+  vim.keymap.set('n', '<leader>??', builtin.help_tags, { desc = 'Search help' })
+  vim.keymap.set('n', '<leader>?k', builtin.keymaps, { desc = 'Search [k]eymaps' })
+  vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Search [f]iles' })
+  -- TODO change keymap
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-  vim.keymap.set({ 'n', 'v' }, '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-  vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+  vim.keymap.set({ 'n', 'v' }, '<leader>8', builtin.grep_string, { desc = 'Search current word' })
+  vim.keymap.set('n', '<leader>/f', builtin.live_grep, { desc = 'Search text in [f]iles' })
+  -- TODO change keymap
   vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-  vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-  vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-  vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = '[S]earch [C]ommands' })
-  vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+  vim.keymap.set('n', '<leader>//', builtin.resume, { desc = '[S]earch [R]esume' })
+  vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = 'Search recent files ("." for repeat)' })
+  vim.keymap.set('n', '<leader>::', builtin.commands, { desc = '[S]earch [C]ommands' })
+  vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
   -- Add Telescope-based LSP pickers when an LSP attaches to a buffer.
   -- If you later switch picker plugins, this is where to update these mappings.
@@ -599,30 +747,34 @@ do
   })
 
   -- Override default behavior and theme when searching
-  vim.keymap.set('n', '<leader>/', function()
+  vim.keymap.set('n', '<leader>/n', function()
     -- You can pass additional configuration to Telescope to change the theme, layout, etc.
     builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
       winblend = 10,
       previewer = false,
     })
-  end, { desc = '[/] Fuzzily search in current buffer' })
+  end, { desc = 'Fuzzily search in current buffer' })
 
   -- It's also possible to pass additional configuration options.
   --  See `:help telescope.builtin.live_grep()` for information about particular keys
   vim.keymap.set(
     'n',
-    '<leader>s/',
+    '<leader>/b',
     function()
       builtin.live_grep {
         grep_open_files = true,
-        prompt_title = 'Live Grep in Open Files',
+        prompt_title = 'Live grep in open files',
       }
     end,
-    { desc = '[S]earch [/] in Open Files' }
+    { desc = 'Find text in open files' }
   )
 
   -- Shortcut for searching your Neovim configuration files
-  vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true } end, { desc = '[S]earch [N]eovim files' })
+  vim.keymap.set('n', '<leader>,,',
+    function()
+      builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true }
+    end,
+    { desc = '[S]earch [N]eovim files' })
 end
 
 -- ============================================================
@@ -1019,8 +1171,8 @@ do
   -- NOTE: You can add your own plugins, configuration, etc. in `lua/custom/plugins/*.lua`.
   --
   -- For independent modules, uncomment the convenience loader:
-  -- require 'custom.plugins'
-  --
+  require 'custom.plugins'
+
   -- `custom.plugins` automatically loads files from that directory, but their
   -- order is unspecified. If plugins depend on each other, keep them in the same
   -- file and put their `vim.pack.add()` and `setup()` calls in the required order.
