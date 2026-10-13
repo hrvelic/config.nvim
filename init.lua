@@ -141,7 +141,7 @@ do
   vim.o.updatetime = 50 -- 250
 
   -- Decrease mapped sequence wait time
-  vim.o.timeoutlen = 300
+  vim.o.timeoutlen = 800
 
   -- Configure how new splits should be opened
   vim.o.splitright = true
@@ -354,8 +354,6 @@ do
   vim.keymap.set('n', '<leader>P', '"+P', { desc = 'Paste before cursor from system clipboard' })
   vim.keymap.set('n', '<leader>p', '"+p', { desc = 'Paste after cursor from system clipboard' })
   ----- Editor ---------------
-  vim.keymap.set('n', '<leader>,q', '<cmd>qa<cr>', { desc = 'Exit neovim' })
-  vim.keymap.set('n', '<leader>,Q', '<cmd>qa!<cr>', { desc = 'Discard changes and exit neovim' })
   vim.keymap.set('n', '<leader>,c', '<cmd>enew|e $MYVIMRC<cr>', { desc = 'Edit neovim config' })
   -- vim.keymap.set('n', '<leader>,R', '<cmd>source $MYVIMRC<cr>', { desc = 'Reload neovim config' })
   vim.keymap.set('n', '<leader>,n', '<cmd>enew|e $HOME/.config/neovide/config.toml<cr>', { desc = 'Edit neovide config' })
@@ -448,7 +446,9 @@ do
       end
 
       if name == 'LuaSnip' then
-        if vim.fn.has 'win32' ~= 1 and vim.fn.executable 'make' == 1 then run_build(name, { 'make', 'install_jsregexp' }, ev.data.path) end
+        if vim.fn.has 'win32' ~= 1 and vim.fn.executable 'make' == 1 then
+          run_build(name, { 'make', 'install_jsregexp' }, ev.data.path)
+        end
         return
       end
 
@@ -505,40 +505,75 @@ do
     -- gitsigns.nvim's recommended keymaps:
     on_attach = function(bufnr)
       -- Navigation
-      vim.keymap.set('n', ']c', function()
-        if vim.wo.diff then
-          vim.cmd.normal { ']c', bang = true }
-        else
-          gitsigns.nav_hunk 'next'
-        end
-      end, { desc = 'Jump to next git [c]hange', buf = bufnr })
+      vim.keymap.set('n', ']c',
+        function()
+          if vim.wo.diff then
+            vim.cmd.normal { ']c', bang = true }
+          else
+            gitsigns.nav_hunk 'next'
+          end
+        end,
+        { desc = 'Jump to next git [c]hange', buf = bufnr }
+      )
 
-      vim.keymap.set('n', '[c', function()
-        if vim.wo.diff then
-          vim.cmd.normal { '[c', bang = true }
-        else
-          gitsigns.nav_hunk 'prev'
-        end
-      end, { desc = 'Jump to previous git [c]hange', buf = bufnr })
+      vim.keymap.set('n', '[c',
+        function()
+          if vim.wo.diff then
+            vim.cmd.normal { '[c', bang = true }
+          else
+            gitsigns.nav_hunk 'prev'
+          end
+        end,
+        { desc = 'Jump to previous git [c]hange', buf = bufnr }
+      )
 
       -- Visual mode actions
-      vim.keymap.set('v', '<leader>hs', function() gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git [s]tage hunk', buf = bufnr })
-      vim.keymap.set('v', '<leader>hr', function() gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git [r]eset hunk', buf = bufnr })
+      vim.keymap.set('v', '<leader>hs',
+        function()
+          gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end,
+        { desc = 'git [s]tage hunk', buf = bufnr }
+      )
+      vim.keymap.set('v', '<leader>hr',
+        function()
+          gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end,
+        { desc = 'git [r]eset hunk', buf = bufnr }
+      )
       -- Normal mode actions
       vim.keymap.set('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'git [s]tage hunk', buf = bufnr })
       vim.keymap.set('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'git [r]eset hunk', buf = bufnr })
       vim.keymap.set('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'git [S]tage buffer', buf = bufnr })
       vim.keymap.set('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'git [R]eset buffer', buf = bufnr })
       vim.keymap.set('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'git [p]review hunk', buf = bufnr })
-      vim.keymap.set('n', '<leader>hi', gitsigns.preview_hunk_inline, { desc = 'git preview hunk [i]nline', buf = bufnr })
-      vim.keymap.set('n', '<leader>hb', function() gitsigns.blame_line { full = true } end, { desc = 'git [b]lame line', buf = bufnr })
+      vim.keymap.set('n', '<leader>hi', gitsigns.preview_hunk_inline, 
+        { desc = 'git preview hunk [i]nline', buf = bufnr })
+      vim.keymap.set('n', '<leader>hb',
+        function()
+          gitsigns.blame_line { full = true }
+        end,
+        { desc = 'git [b]lame line', buf = bufnr }
+      )
       vim.keymap.set('n', '<leader>hd', gitsigns.diffthis, { desc = 'git [d]iff against index', buf = bufnr })
-      vim.keymap.set('n', '<leader>hD', function() gitsigns.diffthis '~' end, { desc = 'git [D]iff against last commit', buf = bufnr })
-      vim.keymap.set('n', '<leader>hQ', function() gitsigns.setqflist 'all' end, { desc = 'git hunk [Q]uickfix list (all files in repo)', buf = bufnr })
-      vim.keymap.set('n', '<leader>hq', gitsigns.setqflist, { desc = 'git hunk [q]uickfix list (all changes in this file)', buf = bufnr })
+      vim.keymap.set('n', '<leader>hD',
+        function()
+          gitsigns.diffthis '~'
+        end,
+        { desc = 'git [D]iff against last commit', buf = bufnr }
+      )
+      vim.keymap.set('n', '<leader>hQ',
+        function()
+          gitsigns.setqflist 'all'
+        end,
+        { desc = 'git hunk [Q]uickfix list (all files in repo)', buf = bufnr }
+      )
+      vim.keymap.set('n', '<leader>hq', gitsigns.setqflist,
+        { desc = 'git hunk [q]uickfix list (all changes in this file)', buf = bufnr })
       -- Toggles
-      vim.keymap.set('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = '[T]oggle git show [b]lame line', buf = bufnr })
-      vim.keymap.set('n', '<leader>tw', gitsigns.toggle_word_diff, { desc = '[T]oggle git intra-line [w]ord diff', buf = bufnr })
+      vim.keymap.set('n', '<leader>tb', gitsigns.toggle_current_line_blame,
+        { desc = '[T]oggle git show [b]lame line', buf = bufnr })
+      vim.keymap.set('n', '<leader>tw', gitsigns.toggle_word_diff,
+        { desc = '[T]oggle git intra-line [w]ord diff', buf = bufnr })
       -- Text object
       vim.keymap.set({ 'o', 'x' }, 'ih', gitsigns.select_hunk, { desc = 'text object [i]nside [h]unk', buf = bufnr })
     end,
@@ -560,10 +595,10 @@ do
       { '<leader>/', group = 'Find text...' },
       { '<leader>,', group = 'Editor...' },
       { '<leader>?', group = 'Help...' },
-      { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
+      -- { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
       { '<leader>t', group = '[T]oggle' },
-      { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
-      { 'gr', group = 'LSP Actions', mode = { 'n' } },
+      { '<leader>h', group = 'Git [h]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
+      { 'gr', group = 'LSP Actions...', mode = { 'n' } },
     },
   }
 
@@ -671,7 +706,9 @@ do
     gh 'nvim-telescope/telescope.nvim',
     gh 'nvim-telescope/telescope-ui-select.nvim',
   }
-  if vim.fn.executable 'make' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
+  if vim.fn.executable 'make' == 1 then
+    table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim')
+  end
 
   -- NOTE: You can install multiple plugins at once
   vim.pack.add(telescope_plugins)
@@ -686,7 +723,26 @@ do
     --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
     --   },
     -- },
-    -- pickers = {}
+    pickers = {
+      git_files = { theme = 'ivy' },
+      help_tags = { theme = 'ivy' },
+      keymaps = { theme = 'ivy' },
+      find_files = { theme = 'ivy' },
+      builtin = { theme = 'ivy' },
+      grep_string = { theme = 'ivy' },
+      live_grep = { theme = 'ivy' },
+      diagnostics = { theme = 'ivy' },
+      resume = { theme = 'ivy' },
+      oldfiles = { theme = 'ivy' },
+      commands = { theme = 'ivy' },
+      buffers = { theme = 'ivy' },
+      lsp_references = { theme = 'ivy' },
+      lsp_implementations = { theme = 'ivy' },
+      lsp_definitions = { theme = 'ivy' },
+      lsp_document_symbols = { theme = 'ivy' },
+      lsp_dynamic_workspace_symbols = { theme = 'ivy' },
+      lsp_type_definitions = { theme = 'ivy' },
+    },
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
     },
@@ -698,19 +754,18 @@ do
 
   -- See `:help telescope.builtin`
   local builtin = require 'telescope.builtin'
-  vim.keymap.set('n', '<leader>??', builtin.help_tags, { desc = 'Search help' })
-  vim.keymap.set('n', '<leader>?k', builtin.keymaps, { desc = 'Search [k]eymaps' })
-  vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Search [f]iles' })
-  -- TODO change keymap
-  vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-  vim.keymap.set({ 'n', 'v' }, '<leader>8', builtin.grep_string, { desc = 'Search current word' })
-  vim.keymap.set('n', '<leader>/f', builtin.live_grep, { desc = 'Search text in [f]iles' })
-  -- TODO change keymap
-  vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-  vim.keymap.set('n', '<leader>//', builtin.resume, { desc = '[S]earch [R]esume' })
+  vim.keymap.set('n', '<leader>?', builtin.help_tags, { desc = 'Search help' })
+  vim.keymap.set('n', '<leader>,k', builtin.keymaps, { desc = 'Search [k]eymaps' })
+  vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[F]ind [f]iles' })
+  vim.keymap.set('n', '<leader>,/', builtin.builtin, { desc = 'Search neovim builtins' })
+  vim.keymap.set({ 'n', 'v' }, '<leader>8', builtin.grep_string, { desc = 'Find current word in files' })
+  vim.keymap.set('n', '<leader>/f', builtin.live_grep, { desc = 'Find in [f]iles' })
+  vim.keymap.set('n', '<leader>gd', builtin.diagnostics, { desc = 'Search [d]iagnostics' })
+  vim.keymap.set('n', '<leader>//', builtin.resume, { desc = 'Resume last search' })
   vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = 'Search recent files ("." for repeat)' })
-  vim.keymap.set('n', '<leader>::', builtin.commands, { desc = '[S]earch [C]ommands' })
-  vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = '[ ] Find existing buffers' })
+  vim.keymap.set('n', '<leader>:?', builtin.commands, { desc = 'Search commands' })
+  vim.keymap.set('n', '<leader>::', builtin.command_history, { desc = 'Search command history' })
+  vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = 'Search open files' })
 
   -- Add Telescope-based LSP pickers when an LSP attaches to a buffer.
   -- If you later switch picker plugins, this is where to update these mappings.
@@ -749,11 +804,11 @@ do
   -- Override default behavior and theme when searching
   vim.keymap.set('n', '<leader>/n', function()
     -- You can pass additional configuration to Telescope to change the theme, layout, etc.
-    builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+    builtin.current_buffer_fuzzy_find(require('telescope.themes').get_ivy {
       winblend = 10,
       previewer = false,
     })
-  end, { desc = 'Fuzzily search in current buffer' })
+  end, { desc = 'Fuzzy search current buffer' })
 
   -- It's also possible to pass additional configuration options.
   --  See `:help telescope.builtin.live_grep()` for information about particular keys
@@ -763,7 +818,7 @@ do
     function()
       builtin.live_grep {
         grep_open_files = true,
-        prompt_title = 'Live grep in open files',
+        prompt_title = 'Find text in open files',
       }
     end,
     { desc = 'Find text in open files' }
@@ -774,7 +829,7 @@ do
     function()
       builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true }
     end,
-    { desc = '[S]earch [N]eovim files' })
+    { desc = 'Search neovim files' })
 end
 
 -- ============================================================
@@ -835,11 +890,11 @@ do
 
       -- Execute a code action, usually your cursor needs to be on top of an error
       -- or a suggestion from your LSP for this to activate.
-      map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+      map('gra', vim.lsp.buf.code_action, '[G]o to Code [A]ction', { 'n', 'x' })
 
       -- WARN: This is not Goto Definition, this is Goto Declaration.
       --  For example, in C this would take you to the header.
-      map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+      map('grD', vim.lsp.buf.declaration, '[G]o to [D]eclaration')
 
       -- The following two autocommands are used to highlight references of the
       -- word under your cursor when your cursor rests there for a little while.
@@ -875,7 +930,13 @@ do
       --
       -- This may be unwanted, since they displace some of your code
       if client and client:supports_method('textDocument/inlayHint', event.buf) then
-        map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
+        map(
+          '<leader>th',
+          function()
+            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+          end,
+          '[T]oggle Inlay [H]ints'
+        )
       end
     end,
   })
@@ -895,6 +956,17 @@ do
     --
     -- But for many setups, the LSP (`rust_analyzer`) will work just fine
     -- rust_analyzer = {},
+    elixirls = {},
+    ts_ls = {},
+    tailwindcss = {
+      -- init_options = {
+      --   userLanguages = {
+      --     elixir = 'html-eex',
+      --     eelixir = 'html-eex',
+      --     heex = 'html-eex',
+      --   },
+      -- },
+    },
 
     stylua = {}, -- Used to format Lua code
 
@@ -1100,7 +1172,12 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = {
+    'bash', 'nu', 'zsh', 'diff', 'lua', 'luadoc', 'query', 'vim', 'vimdoc', 'editorconfig',
+    'gitignore', 'gitattributes', 'git_config', 'gitcommit', 'dockerfile',
+    'markdown', 'markdown_inline', 'html', 'css', 'csv', 'json', 'yaml', 'toml',
+    'c', 'erlang', 'eex', 'elixir', 'heex', 'javascript', 'rust', 'typescript', 'tsx',
+  }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
